@@ -6,13 +6,19 @@ const App = () => {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);  // For error handling
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
+    setResult(null);  // Clear previous results
+    setErrorMessage(null);  // Clear previous errors
   };
 
   const handleFileUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      setErrorMessage("Please select a file.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
@@ -27,7 +33,7 @@ const App = () => {
       setResult(response.data);
     } catch (error) {
       console.error("Error uploading file", error);
-      setResult("Error processing file.");
+      setErrorMessage("Error processing file. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -42,13 +48,18 @@ const App = () => {
         <div className="result-container">
           <h3>Detected Code Smells:</h3>
           <div className="result-box">
-            {result ? (
+            {loading ? (
+              <p>Processing file, please wait...</p>
+            ) : result ? (
               <pre>{result}</pre>
             ) : (
               <p>No file uploaded yet. The result will appear here after detection.</p>
             )}
           </div>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
 
         {/* Upload Button */}
         <div className="upload-section">
