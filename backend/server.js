@@ -2,39 +2,36 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import cors from 'cors';
-import detectPythonSmells from './detectors/detectPythonSmells.js';
-import detectJavaSmells from './detectors/detectJavaSmells.js';
-import detectCppSmells from './detectors/detectCppSmells.js';
+import { analyzeCPPCodeSmells } from './detectors/detectCPPSmells.js';
+import { analyzePythonCodeSmells } from './detectors/detectPythonSmells.js';
+import { analyzeJavaCodeSmells } from './detectors/detectJavaSmells.js';
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
 app.use(cors());
 
-// Handle file upload and select detection logic based on file extension
 app.post('/upload', upload.single('file'), (req, res) => {
     const file = req.file;
 
-    console.log('Received file:', file); // Log the received file
+    console.log('Received file:', file);
     if (!file) {
         return res.status(400).send("No file uploaded.");
     }
 
     const ext = path.extname(file.originalname).toLowerCase();
-    console.log('File extension:', ext); // Log the file extension
+    console.log('File extension:', ext);
 
-    // Detect based on file extension
     switch (ext) {
         case '.py':
-            console.log('Processing Python file:', file.path); // Log the path of the file being processed
-            detectPythonSmells(file.path, res);
+            analyzePythonCodeSmells(file.path, res);
             break;
         case '.java':
-            detectJavaSmells(file.path, res);
+            analyzeJavaCodeSmells(file.path, res);
             break;
         case '.cpp':
         case '.c':
-            detectCppSmells(file.path, res);
+            analyzeCPPCodeSmells(file.path, res);
             break;
         default:
             res.status(400).send("Unsupported file type.");
