@@ -29,7 +29,6 @@ const App = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setErrorMessage(false);
       setResult(response.data);
     } catch (error) {
       console.error("Error uploading file", error.response?.data || error);
